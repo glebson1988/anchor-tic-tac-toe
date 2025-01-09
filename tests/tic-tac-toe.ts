@@ -118,5 +118,126 @@ describe("tic-tac-toe", () => {
             expect(err.program.equals(program.programId)).is.true;
             expect(err.error.comparedValues).to.deep.equal([playerTwo.publicKey, playerOne.publicKey]);
         }
+
+        await play (
+            program,
+            gameKeypair.publicKey,
+            playerTwo,
+            { row: 1, column: 0},
+            3,
+            { active: {} },
+            [
+                [{ x: {} }, null, null],
+                [{ o: {} }, null, null],
+                [null, null, null]
+            ]
+        );
+
+        await play(
+            program,
+            gameKeypair.publicKey,
+            playerOne,
+            { row: 0, column: 1 },
+            4,
+            { active: {}, },
+            [
+              [{ x: {} }, { x: {} }, null],
+              [{ o: {}}, null, null],
+              [null, null, null]
+            ]
+          );
+
+          try {
+            await play(
+              program,
+              gameKeypair.publicKey,
+              playerTwo,
+              { row: 5, column: 1 }, // out of bounds row
+              4,
+              { active: {}, },
+              [
+                [{ x: {} }, { x: {} }, null],
+                [{ o: {} }, null, null],
+                [null, null, null]
+              ]
+            );
+            chai.assert(false, "should have failed, but did not");
+          } catch (_err) {
+            expect(_err).to.be.instanceOf(anchor.AnchorError);
+            const err: anchor.AnchorError = _err;
+            expect(err.error.errorCode.number).to.equal(6000);
+            expect(err.error.errorCode.code).to.equal("TileOutOfBounds");
+          }
+
+          await play(
+            program,
+            gameKeypair.publicKey,
+            playerTwo,
+            { row: 1, column: 1 },
+            5,
+            { active: {}, },
+            [
+              [{ x: {} }, { x: {} }, null],
+              [{ o: {} }, { o: {} }, null],
+              [null, null, null]
+            ]
+          );
+
+          try {
+            await play(
+              program,
+              gameKeypair.publicKey,
+              playerOne,
+              { row: 0, column: 0 },
+              5,
+              { active: {}, },
+              [
+                [{ x: {} }, { x: {} }, null],
+                [{ o: {} }, { o: {} }, null],
+                [null, null, null]
+              ]
+            );
+            chai.assert(false, "should have failed, but did not");
+          } catch (_err) {
+            expect(_err).to.be.instanceOf(anchor.AnchorError);
+            const err: anchor.AnchorError = _err;
+            expect(err.error.errorCode.number).to.equal(6001);
+            expect(err.error.errorCode.code).to.equal("TileAlreadySet");
+          }
+
+          await play(
+            program,
+            gameKeypair.publicKey,
+            playerOne,
+            { row: 0, column: 2 },
+            5,
+            { won: { winner: playerOne.publicKey }, },
+            [
+              [{ x: {} }, { x: {} }, { x: {} }],
+              [{ o: {} }, { o: {} }, null],
+              [null, null, null]
+            ]
+          );
+
+          try {
+            await play(
+              program,
+              gameKeypair.publicKey,
+              playerOne,
+              { row: 0, column: 2 },
+              5,
+              { won: { winner: playerOne.publicKey }, },
+              [
+                [{ x: {} }, { x: {} }, { x: {} }],
+                [{ o: {} }, { o: {} }, null],
+                [null, null, null]
+              ]
+            );
+            chai.assert(false, "should have failed, but did not");
+          } catch (_err) {
+            expect(_err).to.be.instanceOf(anchor.AnchorError);
+            const err: anchor.AnchorError = _err;
+            expect(err.error.errorCode.number).to.equal(6002);
+          }
     });
 });
