@@ -112,6 +112,11 @@ describe("tic-tac-toe", () => {
             chai.assert(false, "should have failed, but did not")
         } catch (_err) {
             expect(_err).to.be.instanceOf(anchor.AnchorError);
+            const err: anchor.AnchorError = _err;
+            expect(err.error.errorCode.code).to.equal("NotPlayersTurn");
+            expect(err.error.errorCode.number).to.equal(6003);
+            expect(err.program.equals(program.programId)).is.true;
+            expect(err.error.comparedValues).to.deep.equal([playerTwo.publicKey, playerOne.publicKey]);
         }
     });
 });
