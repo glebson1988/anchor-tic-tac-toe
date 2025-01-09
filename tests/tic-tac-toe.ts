@@ -91,5 +91,27 @@ describe("tic-tac-toe", () => {
                 [null, null, null]
             ]
         );
+
+        try {
+            await play(
+                program,
+                gameKeypair.publicKey,
+                playerOne, // same player in subsiquent turns
+                // change something about the tx because
+                // duplicate tx that come in too fast
+                // after each other may get dropped
+                { row: 1, column: 0},
+                2,
+                { active: {} },
+                [
+                    [{x:{}}, null, null],
+                    [null, null, null],
+                    [null, null, null]
+                ]
+            );
+            chai.assert(false, "should have failed, but did not")
+        } catch (_err) {
+            expect(_err).to.be.instanceOf(anchor.AnchorError);
+        }
     });
 });
